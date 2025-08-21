@@ -98,9 +98,6 @@ def change_background_color(image_path, bg_color='white'):
 def enhance_image(image_path, brightness=1.0, contrast=1.0, saturation=1.0, sharpness=1.0):
     """Enhance image with various filters"""
     img = Image.open(image_path)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port)
     
     if brightness != 1.0:
         enhancer = ImageEnhance.Brightness(img)
@@ -119,6 +116,9 @@ if __name__ == '__main__':
         img = enhancer.enhance(sharpness)
     
     return img
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=port)
 
 def apply_blur_effect(image_path, blur_radius=2):
     """Apply blur effect to image"""
@@ -206,5 +206,4 @@ def index():
 def static_files(filename):
     return send_from_directory('static', filename)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# This block was moved to the previous if __name__ == '__main__' section
