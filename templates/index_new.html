@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Studio - Multiple AI Features</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .hero-section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+        .feature-card { background: rgba(255, 255, 255, 0.95); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.3s ease; cursor: pointer; height: 100%; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .feature-card.active { border: 2px solid #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); }
+        .upload-zone { border: 3px dashed #ffffff80; border-radius: 15px; background: rgba(255, 255, 255, 0.05); transition: all 0.3s ease; cursor: pointer; }
+        .upload-zone:hover { border-color: #ffffff; background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+        .btn-gradient { background: linear-gradient(45deg, #4ade80, #22d3ee); border: none; border-radius: 12px; font-weight: 600; padding: 12px 30px; transition: all 0.3s ease; box-shadow: 0 4px 15px 0 rgba(74, 222, 128, 0.3); }
+        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 8px 25px 0 rgba(74, 222, 128, 0.4); }
+        .result-card { background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .title-gradient { background: linear-gradient(45deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .controls-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2); display: none; }
+        .transparency-bg { background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+        .preview-image { max-height: 400px; object-fit: contain; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold title-gradient mb-3">
+                <i class="fas fa-robot me-3"></i>AI Image Studio
+            </h1>
+            <p class="lead text-white-50 mb-0">Multiple AI-powered image processing features</p>
+        </div>
+        
+        <!-- Feature Selection -->
+        <div class="row g-3 mb-5">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center active" data-feature="remove_bg">
+                    <i class="fas fa-magic fa-2x text-primary mb-2"></i>
+                    <h6 class="mb-0">Remove Background</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="compress">
+                    <i class="fas fa-compress-alt fa-2x text-warning mb-2"></i>
+                    <h6 class="mb-0">Compress</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="resize">
+                    <i class="fas fa-expand-arrows-alt fa-2x text-info mb-2"></i>
+                    <h6 class="mb-0">Resize</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="change_bg">
+                    <i class="fas fa-palette fa-2x text-success mb-2"></i>
+                    <h6 class="mb-0">Change Background</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="enhance">
+                    <i class="fas fa-adjust fa-2x text-danger mb-2"></i>
+                    <h6 class="mb-0">Enhance</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="blur">
+                    <i class="fas fa-eye-slash fa-2x text-secondary mb-2"></i>
+                    <h6 class="mb-0">Blur Effect</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="hero-section p-5 mb-5">
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="operation" id="operationType" value="remove_bg">
+                
+                <div class="upload-zone p-5 text-center mb-4" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-white mb-3"></i>
+                    <h4 class="text-white mb-3">Drop your image here or click to browse</h4>
+                    <p class="text-white-50 mb-3">Supports JPG, PNG, JPEG files</p>
+                    <input class="d-none" type="file" name="file" id="fileInput" accept="image/*" required>
+                    <button type="button" class="btn btn-gradient" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose File
+                    </button>
+                </div>
+                
+                <!-- Controls Panel -->
+                <div class="controls-panel p-4 mb-4" id="controlsPanel">
+                    <!-- Compress Controls -->
+                    <div class="control-group" id="compressControls" style="display: none;">
+                        <h5 class="text-white mb-3">Compression Settings</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Quality (1-100)</label>
+                                <input type="range" class="form-range" name="quality" min="1" max="100" value="85" id="qualitySlider">
+                                <span class="text-white" id="qualityValue">85</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resize Controls -->
+                    <div class="control-group" id="resizeControls" style="display: none;">
+                        <h5 class="text-white mb-3">Resize Settings</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label text-white">Width (px)</label>
+                                <input type="number" class="form-control" name="width" placeholder="Auto">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-white">Height (px)</label>
+                                <input type="number" class="form-control" name="height" placeholder="Auto">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Background Color Controls -->
+                    <div class="control-group" id="bgColorControls" style="display: none;">
+                        <h5 class="text-white mb-3">Background Color</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-select" name="bg_color">
+                                    <option value="white">White</option>
+                                    <option value="black">Black</option>
+                                    <option value="red">Red</option>
+                                    <option value="green">Green</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="pink">Pink</option>
+                                    <option value="transparent">Transparent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhancement Controls -->
+                    <div class="control-group" id="enhanceControls" style="display: none;">
+                        <h5 class="text-white mb-3">Enhancement Settings</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label text-white">Brightness</label>
+                                <input type="range" class="form-range" name="brightness" min="0.1" max="2" step="0.1" value="1.0" id="brightnessSlider">
+                                <span class="text-white" id="brightnessValue">1.0</span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label text-white">Contrast</label>
+                                <input type="range" class="form-range" name="contrast" min="0.1" max="2" step="0.1" value="1.0" id="contrastSlider">
+                                <span class="text-white" id="contrastValue">1.0</span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label text-white">Saturation</label>
+                                <input type="range" class="form-range" name="saturation" min="0.1" max="2" step="0.1" value="1.0" id="saturationSlider">
+                                <span class="text-white" id="saturationValue">1.0</span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label text-white">Sharpness</label>
+                                <input type="range" class="form-range" name="sharpness" min="0.1" max="2" step="0.1" value="1.0" id="sharpnessSlider">
+                                <span class="text-white" id="sharpnessValue">1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Blur Controls -->
+                    <div class="control-group" id="blurControls" style="display: none;">
+                        <h5 class="text-white mb-3">Blur Settings</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Blur Radius</label>
+                                <input type="range" class="form-range" name="blur_radius" min="0.5" max="10" step="0.5" value="2" id="blurSlider">
+                                <span class="text-white" id="blurValue">2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-gradient btn-lg" type="submit" id="submitBtn">
+                        <i class="fas fa-magic me-2"></i><span id="submitText">Remove Background</span>
+                    </button>
+                    <div class="loading-spinner mt-3" id="loadingSpinner" style="display: none;">
+                        <div class="spinner-border text-light" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="text-white mt-2">AI is working its magic...</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if result_image %}
+        <div class="row g-4">
+            {% if original_image %}
+            <div class="col-lg-6">
+                <div class="result-card p-4">
+                    <h5 class="text-dark mb-3">
+                        <i class="fas fa-image me-2 text-primary"></i>Original Image
+                    </h5>
+                    <div class="text-center">
+                        <img src="/{{ original_image }}" alt="Original Image" class="preview-image img-fluid">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="col-lg-6">
+                <div class="result-card p-4">
+                    <h5 class="text-dark mb-3">
+                        <i class="fas fa-magic me-2 text-success"></i>Processed Image
+                    </h5>
+                    <div class="text-center {% if operation == 'remove_bg' or operation == 'change_bg' %}transparency-bg{% endif %} p-3 rounded">
+                        <img src="/{{ result_image }}" alt="Result Image" class="preview-image img-fluid">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/{{ result_image }}" download class="btn btn-gradient">
+                            <i class="fas fa-download me-2"></i>Download Result
+                        </a>
+                        <button class="btn btn-outline-secondary ms-2" onclick="location.reload()">
+                            <i class="fas fa-redo me-2"></i>Try Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const operationType = document.getElementById('operationType');
+        const submitText = document.getElementById('submitText');
+        const controlsPanel = document.getElementById('controlsPanel');
+
+        // Feature buttons
+        const featureTexts = {
+            'remove_bg': 'Remove Background',
+            'compress': 'Compress Image',
+            'resize': 'Resize Image',
+            'change_bg': 'Change Background',
+            'enhance': 'Enhance Image',
+            'blur': 'Apply Blur Effect'
+        };
+
+        // Feature selection
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                
+                const feature = card.dataset.feature;
+                operationType.value = feature;
+                submitText.textContent = featureTexts[feature];
+                
+                // Show/hide controls
+                document.querySelectorAll('.control-group').forEach(group => group.style.display = 'none');
+                if (feature !== 'remove_bg') {
+                    controlsPanel.style.display = 'block';
+                    const controlId = feature + 'Controls';
+                    const control = document.getElementById(controlId);
+                    if (control) control.style.display = 'block';
+                } else {
+                    controlsPanel.style.display = 'none';
+                }
+            });
+        });
+
+        // Slider value updates
+        ['quality', 'brightness', 'contrast', 'saturation', 'sharpness', 'blur'].forEach(slider => {
+            const sliderEl = document.getElementById(slider + 'Slider');
+            const valueEl = document.getElementById(slider + 'Value');
+            if (sliderEl && valueEl) {
+                sliderEl.addEventListener('input', () => {
+                    valueEl.textContent = sliderEl.value;
+                });
+            }
+        });
+
+        // Drag and drop functionality
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileName(files[0].name);
+            }
+        });
+
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                updateFileName(e.target.files[0].name);
+            }
+        });
+
+        function updateFileName(fileName) {
+            const uploadText = uploadZone.querySelector('h4');
+            uploadText.innerHTML = `<i class="fas fa-check-circle me-2"></i>Selected: ${fileName}`;
+            uploadZone.style.borderColor = '#4ade80';
+            uploadZone.style.background = 'rgba(74, 222, 128, 0.1)';
+        }
+
+        uploadForm.addEventListener('submit', () => {
+            submitBtn.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

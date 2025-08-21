@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Studio - Multiple AI Features</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .hero-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .feature-card.active {
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+        .upload-zone {
+            border: 3px dashed #ffffff80;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn-gradient {
+            background: linear-gradient(45deg, #4ade80, #22d3ee);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 12px 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px 0 rgba(74, 222, 128, 0.3);
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px 0 rgba(74, 222, 128, 0.4);
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .title-gradient {
+            background: linear-gradient(45deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+        .transparency-bg {
+            background-image: 
+                linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        .preview-image {
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold title-gradient mb-3">
+                <i class="fas fa-robot me-3"></i>AI Image Studio
+            </h1>
+            <p class="lead text-white-50 mb-0">Multiple AI-powered image processing features</p>
+        </div>
+        
+        <!-- Feature Selection -->
+        <div class="row g-3 mb-5">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center active" data-feature="remove_bg">
+                    <i class="fas fa-magic fa-2x text-primary mb-2"></i>
+                    <h6 class="mb-0">Remove Background</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="compress">
+                    <i class="fas fa-compress-alt fa-2x text-warning mb-2"></i>
+                    <h6 class="mb-0">Compress</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="resize">
+                    <i class="fas fa-expand-arrows-alt fa-2x text-info mb-2"></i>
+                    <h6 class="mb-0">Resize</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="change_bg">
+                    <i class="fas fa-palette fa-2x text-success mb-2"></i>
+                    <h6 class="mb-0">Change Background</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="enhance">
+                    <i class="fas fa-adjust fa-2x text-danger mb-2"></i>
+                    <h6 class="mb-0">Enhance</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="feature-card p-3 text-center" data-feature="blur">
+                    <i class="fas fa-eye-slash fa-2x text-secondary mb-2"></i>
+                    <h6 class="mb-0">Blur Effect</h6>
+                </div>
+            </div>
+        </div>
+        {% if result_image %}
+        <div class="row g-4">
+            {% if original_image %}
+            <div class="col-lg-6">
+                <div class="result-card p-4">
+                    <h5 class="text-dark mb-3">
+                        <i class="fas fa-image me-2 text-primary"></i>Original Image
+                    </h5>
+                    <div class="text-center">
+                        <img src="/{{ original_image }}" alt="Original Image" class="preview-image img-fluid">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="col-lg-6">
+                <div class="result-card p-4">
+                    <h5 class="text-dark mb-3">
+                        <i class="fas fa-magic me-2 text-success"></i>Background Removed
+                    </h5>
+                    <div class="text-center transparency-bg p-3 rounded">
+                        <img src="/{{ result_image }}" alt="Result Image" class="preview-image img-fluid">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/{{ result_image }}" download class="btn btn-gradient">
+                            <i class="fas fa-download me-2"></i>Download PNG
+                        </a>
+                        <button class="btn btn-outline-secondary ms-2" onclick="location.reload()">
+                            <i class="fas fa-redo me-2"></i>Try Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Drag and drop functionality
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileName(files[0].name);
+            }
+        });
+
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                updateFileName(e.target.files[0].name);
+            }
+        });
+
+        function updateFileName(fileName) {
+            const uploadText = uploadZone.querySelector('h4');
+            uploadText.innerHTML = `<i class="fas fa-check-circle me-2"></i>Selected: ${fileName}`;
+            uploadZone.style.borderColor = '#4ade80';
+            uploadZone.style.background = 'rgba(74, 222, 128, 0.1)';
+        }
+
+        uploadForm.addEventListener('submit', () => {
+            submitBtn.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

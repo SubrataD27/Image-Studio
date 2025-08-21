@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Studio - Professional Image Processing</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg">
+    <link rel="alternate icon" href="/static/images/favicon.svg">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Professional AI-powered image processing studio. Remove backgrounds, compress, resize, enhance images with advanced AI technology.">
+    <meta name="keywords" content="AI, image processing, background removal, image compression, image enhancement">
+    <meta name="author" content="Subrata">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="AI Image Studio - Professional Image Processing">
+    <meta property="og:description" content="Transform your images with AI-powered tools">
+    <meta property="og:type" content="website">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    
+    <!-- Main Container -->
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="logo-container">
+                <div class="logo-icon" data-tooltip="Click me 5 times for a surprise!">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h1 class="main-title">AI Image Studio</h1>
+                    <p class="main-subtitle">Professional Image Processing Powered by Artificial Intelligence</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Feature Selection Grid -->
+        <section class="features-section">
+            <div class="features-grid">
+                <div class="feature-card active" data-feature="remove_bg" data-tooltip="Remove image backgrounds instantly">
+                    <div class="feature-icon" style="color: #6366f1;">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h6 class="feature-title">Remove Background</h6>
+                </div>
+                
+                <div class="feature-card" data-feature="compress" data-tooltip="Reduce file size while maintaining quality">
+                    <div class="feature-icon" style="color: #f59e0b;">
+                        <i class="fas fa-compress-alt"></i>
+                    </div>
+                    <h6 class="feature-title">Compress</h6>
+                </div>
+                
+                <div class="feature-card" data-feature="resize" data-tooltip="Change image dimensions intelligently">
+                    <div class="feature-icon" style="color: #3b82f6;">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </div>
+                    <h6 class="feature-title">Resize</h6>
+                </div>
+                
+                <div class="feature-card" data-feature="change_bg" data-tooltip="Replace backgrounds with solid colors">
+                    <div class="feature-icon" style="color: #10b981;">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h6 class="feature-title">Change Background</h6>
+                </div>
+                
+                <div class="feature-card" data-feature="enhance" data-tooltip="Improve brightness, contrast, and more">
+                    <div class="feature-icon" style="color: #ef4444;">
+                        <i class="fas fa-adjust"></i>
+                    </div>
+                    <h6 class="feature-title">Enhance</h6>
+                </div>
+                
+                <div class="feature-card" data-feature="blur" data-tooltip="Apply artistic blur effects">
+                    <div class="feature-icon" style="color: #6b7280;">
+                        <i class="fas fa-eye-slash"></i>
+                    </div>
+                    <h6 class="feature-title">Blur Effect</h6>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="operation" id="operationType" value="remove_bg">
+                
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="upload-title">Drop your image here or click to browse</h3>
+                    <p class="upload-subtitle">Supports JPG, PNG, JPEG files up to 10MB</p>
+                    <input type="file" name="file" id="fileInput" accept="image/*" required style="display: none;">
+                    <button type="button" class="btn-gradient" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose File
+                    </button>
+                </div>
+
+                <!-- Controls Panel -->
+                <div class="controls-panel" id="controlsPanel">
+                    <!-- Compression Controls -->
+                    <div class="control-section" id="compressControls" style="display: none;">
+                        <h5><i class="fas fa-sliders-h me-2"></i>Compression Settings</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Quality Level</label>
+                                <input type="range" class="form-range" name="quality" min="1" max="100" value="85" id="qualitySlider">
+                                <div class="d-flex justify-content-between">
+                                    <small>Low Quality</small>
+                                    <span class="badge bg-primary" id="qualityValue">85</span>
+                                    <small>High Quality</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resize Controls -->
+                    <div class="control-section" id="resizeControls" style="display: none;">
+                        <h5><i class="fas fa-expand me-2"></i>Resize Settings</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Width (pixels)</label>
+                                <input type="number" class="form-control" name="width" placeholder="Auto">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Height (pixels)</label>
+                                <input type="number" class="form-control" name="height" placeholder="Auto">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Maintain Aspect Ratio</label>
+                                <select class="form-select" name="maintain_aspect">
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Background Color Controls -->
+                    <div class="control-section" id="change_bgControls" style="display: none;">
+                        <h5><i class="fas fa-paint-brush me-2"></i>Background Color</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Choose Color</label>
+                                <select class="form-select" name="bg_color">
+                                    <option value="white">⚪ White</option>
+                                    <option value="black">⚫ Black</option>
+                                    <option value="red">🔴 Red</option>
+                                    <option value="green">🟢 Green</option>
+                                    <option value="blue">🔵 Blue</option>
+                                    <option value="yellow">🟡 Yellow</option>
+                                    <option value="purple">🟣 Purple</option>
+                                    <option value="pink">🩷 Pink</option>
+                                    <option value="transparent">✨ Transparent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhancement Controls -->
+                    <div class="control-section" id="enhanceControls" style="display: none;">
+                        <h5><i class="fas fa-magic me-2"></i>Enhancement Settings</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Brightness</label>
+                                <input type="range" class="form-range" name="brightness" min="0.1" max="2" step="0.1" value="1.0" id="brightnessSlider">
+                                <div class="text-center">
+                                    <span class="badge bg-info" id="brightnessValue">1.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Contrast</label>
+                                <input type="range" class="form-range" name="contrast" min="0.1" max="2" step="0.1" value="1.0" id="contrastSlider">
+                                <div class="text-center">
+                                    <span class="badge bg-info" id="contrastValue">1.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Saturation</label>
+                                <input type="range" class="form-range" name="saturation" min="0.1" max="2" step="0.1" value="1.0" id="saturationSlider">
+                                <div class="text-center">
+                                    <span class="badge bg-info" id="saturationValue">1.0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Sharpness</label>
+                                <input type="range" class="form-range" name="sharpness" min="0.1" max="2" step="0.1" value="1.0" id="sharpnessSlider">
+                                <div class="text-center">
+                                    <span class="badge bg-info" id="sharpnessValue">1.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Blur Controls -->
+                    <div class="control-section" id="blurControls" style="display: none;">
+                        <h5><i class="fas fa-blur me-2"></i>Blur Settings</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Blur Intensity</label>
+                                <input type="range" class="form-range" name="blur_radius" min="0.5" max="10" step="0.5" value="2" id="blurSlider">
+                                <div class="d-flex justify-content-between">
+                                    <small>Subtle</small>
+                                    <span class="badge bg-secondary" id="blurValue">2</span>
+                                    <small>Intense</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button class="btn-gradient btn-lg" type="submit" id="submitBtn">
+                        <i class="fas fa-magic me-2"></i>
+                        <span id="submitText">Remove Background</span>
+                    </button>
+                </div>
+
+                <!-- Loading Animation -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p>AI is working its magic...</p>
+                </div>
+            </form>
+        </section>
+
+        <!-- Results Section -->
+        {% if result_image %}
+        <section class="results-section">
+            <div class="results-grid">
+                {% if original_image %}
+                <div class="result-card">
+                    <h5 class="result-title">
+                        <i class="fas fa-image text-primary"></i>
+                        Original Image
+                    </h5>
+                    <div class="image-container">
+                        <img src="/{{ original_image }}" alt="Original Image" class="preview-image">
+                    </div>
+                    <div class="text-center">
+                        <span class="badge bg-secondary">Original</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="result-card">
+                    <h5 class="result-title">
+                        <i class="fas fa-magic text-success"></i>
+                        Processed Result
+                    </h5>
+                    <div class="image-container {% if operation == 'remove_bg' or operation == 'change_bg' %}transparency-bg{% endif %}">
+                        <img src="/{{ result_image }}" alt="Processed Image" class="preview-image">
+                    </div>
+                    <div class="text-center">
+                        <a href="/{{ result_image }}" download class="btn-gradient me-2">
+                            <i class="fas fa-download me-2"></i>Download Result
+                        </a>
+                        <button class="btn-secondary" onclick="location.reload()">
+                            <i class="fas fa-redo me-2"></i>Process Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="love-text">
+                Made with <span class="heart">❤️</span> by 
+                <a href="#" class="creator-link">Subrata</a>
+            </div>
+            <div class="footer-links">
+                <small class="text-muted">
+                    © 2025 AI Image Studio. Powered by advanced AI technology.
+                </small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    {% for message in messages %}
+                        showNotification('{{ message }}', 'error');
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
