@@ -19,6 +19,9 @@ app.secret_key = 'supersecretkey'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
+# Add port configuration
+port = int(os.environ.get('PORT', 10000))
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -95,6 +98,9 @@ def change_background_color(image_path, bg_color='white'):
 def enhance_image(image_path, brightness=1.0, contrast=1.0, saturation=1.0, sharpness=1.0):
     """Enhance image with various filters"""
     img = Image.open(image_path)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=port)
     
     if brightness != 1.0:
         enhancer = ImageEnhance.Brightness(img)
