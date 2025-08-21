@@ -19,7 +19,7 @@ app.secret_key = 'supersecretkey'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
-# Add port configuration
+# Add port configuration for development server
 port = int(os.environ.get('PORT', 10000))
 
 
@@ -117,9 +117,6 @@ def enhance_image(image_path, brightness=1.0, contrast=1.0, saturation=1.0, shar
     
     return img
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port)
-
 def apply_blur_effect(image_path, blur_radius=2):
     """Apply blur effect to image"""
     img = Image.open(image_path)
@@ -206,4 +203,6 @@ def index():
 def static_files(filename):
     return send_from_directory('static', filename)
 
-# This block was moved to the previous if __name__ == '__main__' section
+if __name__ == '__main__':
+    # Use the port from environment variable in development
+    app.run(host='0.0.0.0', port=port, debug=True)
