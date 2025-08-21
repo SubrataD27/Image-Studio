@@ -4,3 +4,5 @@ Pillow
 werkzeug
 opencv-python
 numpy
+gunicorn
+python-dotenv
