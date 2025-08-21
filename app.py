@@ -1,4 +1,5 @@
 import os
+import time
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 from rembg import remove
@@ -22,16 +23,50 @@ os.makedirs(RESULT_FOLDER, exist_ok=True)
 # Add port configuration for development server
 port = int(os.environ.get('PORT', 10000))
 
+def cleanup_old_files():
+    """Clean up files older than 1 hour"""
+    current_time = time.time()
+    for folder in [UPLOAD_FOLDER, RESULT_FOLDER]:
+        for filename in os.listdir(folder):
+            filepath = os.path.join(folder, filename)
+            # If file is older than 1 hour, delete it
+            if os.path.getmtime(filepath) < current_time - 3600:
+                try:
+                    os.remove(filepath)
+                except:
+                    pass
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def remove_background(image_path):
     """Remove background from image"""
+    # Open and resize image if too large
+    with Image.open(image_path) as img:
+        # Calculate size maintaining aspect ratio
+        max_size = 1500
+        ratio = min(max_size/img.width, max_size/img.height)
+        if ratio < 1:
+            new_size = (int(img.width * ratio), int(img.height * ratio))
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+            # Save resized image temporarily
+            temp_path = image_path + '.temp'
+            img.save(temp_path)
+            image_path = temp_path
+
+    # Process image
     with open(image_path, 'rb') as inp:
         input_data = inp.read()
     output_data = remove(input_data)
     img = Image.open(io.BytesIO(output_data))
+    
+    # Clean up temporary file if it exists
+    if image_path.endswith('.temp'):
+        try:
+            os.remove(image_path)
+        except:
+            pass
+            
     return img
 
 def compress_image(image_path, quality=85):
@@ -124,6 +159,9 @@ def apply_blur_effect(image_path, blur_radius=2):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # Clean up old files
+    cleanup_old_files()
+    
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
