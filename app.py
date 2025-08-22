@@ -226,10 +226,17 @@ def index():
                 else:
                     result_img.save(result_path, format='PNG')
                 
-                return render_template('index.html', 
-                                     original_image=filepath, 
+                # Clean up uploaded file
+                try:
+                    os.remove(filepath)
+                except:
+                    pass
+                
+                return render_template('index_custom.html', 
+                                     original_image=None,
                                      result_image=result_path,
-                                     operation=operation)
+                                     operation=operation,
+                                     success=True)
                                      
             except Exception as e:
                 flash(f'Error processing image: {str(e)}')
@@ -240,6 +247,10 @@ def index():
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
+
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    return send_from_directory(app.config['RESULT_FOLDER'], filename, as_attachment=True)
 
 if __name__ == '__main__':
     # Use the port from environment variable in development

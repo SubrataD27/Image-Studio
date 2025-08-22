@@ -349,6 +349,73 @@ function smoothScrollTo(element) {
     });
 }
 
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Add styles if not already added
+    if (!document.getElementById('notification-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'notification-styles';
+        styles.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 400px;
+                border-left: 4px solid;
+            }
+            .notification-success { border-left-color: #10b981; }
+            .notification-error { border-left-color: #ef4444; }
+            .notification-info { border-left-color: #3b82f6; }
+            .notification-content {
+                padding: 15px 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .notification-close {
+                background: none;
+                border: none;
+                margin-left: auto;
+                color: #6b7280;
+                cursor: pointer;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
 // Add some Easter eggs for fun
 let clickCount = 0;
 document.addEventListener('click', function(e) {
