@@ -270,10 +270,10 @@
                         Processed Result
                     </h5>
                     <div class="image-container {% if operation == 'remove_bg' or operation == 'change_bg' %}transparency-bg{% endif %}">
-                        <img src="{{ url_for('static_files', filename=result_image.replace('static/', '')) }}" alt="Processed Image" class="preview-image">
+                        <img src="{{ url_for('result_files', filename=result_image) }}" alt="Processed Image" class="preview-image">
                     </div>
                     <div class="text-center">
-                        <a href="{{ url_for('download_file', filename=result_image.split('/')[-1]) }}" class="btn-gradient me-2">
+                        <a href="{{ url_for('download_file', filename=result_image) }}" class="btn-gradient me-2">
                             <i class="fas fa-download me-2"></i>Download Result
                         </a>
                         <button class="btn-secondary" onclick="location.reload()">

@@ -2,11 +2,8 @@ import os
 import time
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
-from rembg import remove
 from PIL import Image, ImageEnhance, ImageFilter
 import io
-import cv2
-import numpy as np
 
 UPLOAD_FOLDER = 'static/uploads'
 RESULT_FOLDER = 'static/results'
@@ -27,51 +24,29 @@ def cleanup_old_files():
     """Clean up files older than 1 hour"""
     current_time = time.time()
     for folder in [UPLOAD_FOLDER, RESULT_FOLDER]:
-        for filename in os.listdir(folder):
-            filepath = os.path.join(folder, filename)
-            # If file is older than 1 hour, delete it
-            if os.path.getmtime(filepath) < current_time - 3600:
-                try:
-                    os.remove(filepath)
-                except:
-                    pass
+        try:
+            for filename in os.listdir(folder):
+                filepath = os.path.join(folder, filename)
+                # If file is older than 1 hour, delete it
+                if os.path.getmtime(filepath) < current_time - 3600:
+                    try:
+                        os.remove(filepath)
+                    except:
+                        pass
+        except:
+            pass
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def remove_background(image_path):
-    """Remove background from image"""
-    # Open and resize image if too large
-    ext = os.path.splitext(image_path)[1]
-    temp_path = None
-    with Image.open(image_path) as img:
-        max_size = 1500
-        ratio = min(max_size/img.width, max_size/img.height)
-        if ratio < 1:
-            new_size = (int(img.width * ratio), int(img.height * ratio))
-            img = img.resize(new_size, Image.Resampling.LANCZOS)
-            temp_path = image_path + '.resized' + ext
-            img.save(temp_path)
-            image_path = temp_path
-
-    # Process image
-    with open(image_path, 'rb') as inp:
-        input_data = inp.read()
-    output_data = remove(input_data)
-    img = Image.open(io.BytesIO(output_data))
-
-    # Clean up temporary file if it exists
-    if temp_path and os.path.exists(temp_path):
-        try:
-            os.remove(temp_path)
-        except Exception:
-            pass
-    return img
+    """Mock background removal - just return original for testing"""
+    img = Image.open(image_path)
+    return img.convert('RGBA')
 
 def compress_image(image_path, quality=85):
     """Compress image with specified quality"""
     img = Image.open(image_path)
-    # Convert to RGB if necessary for JPEG compression
     if img.mode in ('RGBA', 'LA', 'P'):
         img = img.convert('RGB')
     
@@ -91,48 +66,11 @@ def resize_image(image_path, width=None, height=None, maintain_aspect=True):
         elif height and not width:
             width = int((height / original_height) * original_width)
         elif width and height:
-            # Maintain aspect ratio and fit within bounds
             ratio = min(width / original_width, height / original_height)
             width = int(original_width * ratio)
             height = int(original_height * ratio)
     
     return img.resize((width, height), Image.Resampling.LANCZOS)
-
-def change_background_color(image_path, bg_color='white'):
-    """Change background color of image"""
-    try:
-        # First remove the background
-        img = remove_background(image_path)
-        
-        # Create new image with specified background color
-        if bg_color == 'transparent':
-            return img
-        
-        # Color mapping
-        color_map = {
-            'white': (255, 255, 255),
-            'black': (0, 0, 0),
-            'red': (255, 0, 0),
-            'green': (0, 255, 0),
-            'blue': (0, 0, 255),
-            'yellow': (255, 255, 0),
-            'purple': (128, 0, 128),
-            'pink': (255, 192, 203)
-        }
-        
-        bg_rgb = color_map.get(bg_color, (255, 255, 255))
-        background = Image.new('RGB', img.size, bg_rgb)
-        
-        if img.mode == 'RGBA':
-            background.paste(img, mask=img.split()[-1])  # Use alpha channel as mask
-        else:
-            background.paste(img)
-        
-        return background
-    except Exception as e:
-        print(f"Error in change_background_color: {e}")
-        # Fallback: just return original image with removed background
-        return remove_background(image_path)
 
 def enhance_image(image_path, brightness=1.0, contrast=1.0, saturation=1.0, sharpness=1.0):
     """Enhance image with various filters"""
@@ -163,7 +101,6 @@ def apply_blur_effect(image_path, blur_radius=2):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # Clean up old files
     cleanup_old_files()
     
     if request.method == 'POST':
@@ -175,20 +112,10 @@ def index():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            # Check file size (max 10MB)
-            file.seek(0, 2)  # Move to end of file
-            file_size = file.tell()
-            file.seek(0)  # Reset to beginning
-            
-            if file_size > 10 * 1024 * 1024:  # 10MB limit
-                flash('File size too large. Please upload an image smaller than 10MB.')
-                return redirect(request.url)
-            
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            # Get the operation type
             operation = request.form.get('operation', 'remove_bg')
             
             try:
@@ -197,56 +124,33 @@ def index():
                     result_filename = f"{os.path.splitext(filename)[0]}_no_bg.png"
                     
                 elif operation == 'compress':
-                    quality = max(1, min(100, int(request.form.get('quality', 85))))
+                    quality = int(request.form.get('quality', 85))
                     result_img = compress_image(filepath, quality)
                     result_filename = f"{os.path.splitext(filename)[0]}_compressed.jpg"
                     
                 elif operation == 'resize':
                     width = request.form.get('width')
                     height = request.form.get('height')
-                    if width and width.strip():
-                        width = max(1, min(5000, int(width)))
-                    else:
-                        width = None
-                    if height and height.strip():
-                        height = max(1, min(5000, int(height)))
-                    else:
-                        height = None
-                    
-                    if not width and not height:
-                        flash('Please specify at least width or height for resizing')
-                        return redirect(request.url)
-                        
+                    width = int(width) if width else None
+                    height = int(height) if height else None
                     result_img = resize_image(filepath, width, height)
                     result_filename = f"{os.path.splitext(filename)[0]}_resized.png"
                     
-                elif operation == 'change_bg':
-                    bg_color = request.form.get('bg_color', 'white')
-                    result_img = change_background_color(filepath, bg_color)
-                    ext = '.png' if bg_color == 'transparent' else '.jpg'
-                    result_filename = f"{os.path.splitext(filename)[0]}_bg_{bg_color}{ext}"
-                    
                 elif operation == 'enhance':
-                    brightness = max(0.1, min(3.0, float(request.form.get('brightness', 1.0))))
-                    contrast = max(0.1, min(3.0, float(request.form.get('contrast', 1.0))))
-                    saturation = max(0.1, min(3.0, float(request.form.get('saturation', 1.0))))
-                    sharpness = max(0.1, min(3.0, float(request.form.get('sharpness', 1.0))))
+                    brightness = float(request.form.get('brightness', 1.0))
+                    contrast = float(request.form.get('contrast', 1.0))
+                    saturation = float(request.form.get('saturation', 1.0))
+                    sharpness = float(request.form.get('sharpness', 1.0))
                     result_img = enhance_image(filepath, brightness, contrast, saturation, sharpness)
                     result_filename = f"{os.path.splitext(filename)[0]}_enhanced.png"
                     
                 elif operation == 'blur':
-                    blur_radius = max(0.1, min(20.0, float(request.form.get('blur_radius', 2))))
+                    blur_radius = float(request.form.get('blur_radius', 2))
                     result_img = apply_blur_effect(filepath, blur_radius)
                     result_filename = f"{os.path.splitext(filename)[0]}_blurred.png"
                 
-                else:
-                    flash('Invalid operation selected')
-                    return redirect(request.url)
-                
-                # Save the result
                 result_path = os.path.join(app.config['RESULT_FOLDER'], result_filename)
                 
-                # Determine format based on file extension
                 if result_filename.endswith('.jpg'):
                     if result_img.mode in ('RGBA', 'LA', 'P'):
                         result_img = result_img.convert('RGB')
@@ -254,15 +158,13 @@ def index():
                 else:
                     result_img.save(result_path, format='PNG')
                 
-                # Clean up uploaded file
                 try:
                     os.remove(filepath)
                 except:
                     pass
                 
                 return render_template('index_custom.html', 
-                                     original_image=None,
-                                     result_image=result_filename,  # Just the filename
+                                     result_image=result_path,
                                      operation=operation,
                                      success=True)
                                      
@@ -280,10 +182,5 @@ def static_files(filename):
 def download_file(filename):
     return send_from_directory(app.config['RESULT_FOLDER'], filename, as_attachment=True)
 
-@app.route('/results/<path:filename>')
-def result_files(filename):
-    return send_from_directory(app.config['RESULT_FOLDER'], filename)
-
 if __name__ == '__main__':
-    # Use the port from environment variable in development
     app.run(host='0.0.0.0', port=port, debug=True)
